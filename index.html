@@ -8,17 +8,33 @@
     <title>Maze</title>
 </head>
 <body>
-<input id="file_name" type="text" placeholder="Name of file"/>
-<button>Choose</button>
+<button id="startGame">Start game</button>
+<button id="run">Run</button>
+
+<button id="generateMap">Generate map</button>
+<button id="runAgain">Run again</button>
+<select id="select_map">
+    <option value="">Choose map</option>
+    <option value="Map1.txt">Map 1</option>
+    <option value="Map2.txt">Map 2</option>
+    <option value="Map3.txt">Map 3</option>
+    <option value="Map4.txt">Map 4</option>
+    <option value="Map5.txt">Map 5</option>
+</select>
+<br>
+<br>
+Rows: <input id="inputRow" type="number" value="70">
+<br>
+Columns: <input id="inputColumn" type="number" value="70">
 <br />
 <br />
 <div class="result">
     Open list: <h4 id="openList">0</h4>
     Close list: <h4 id="closeList">0</h4>
 </div>
-<canvas width="2000" height="2000" id="viewMatrix"></canvas>
+<canvas width="4000" height="4000" id="viewMatrix"></canvas>
 
-<script type="text/javascript" src="js/app.js?v=1">
+<script type="text/javascript" src="js/app.js?v=3">
 
 </script>
 </body>

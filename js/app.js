@@ -1,10 +1,31 @@
 window.onload = function () {
     const openListText = document.getElementById("openList");
     const closeListText = document.getElementById("closeList");
+    const selectMap = document.getElementById("select_map");
+    const btnStart = document.getElementById("startGame");
+    const btnRun = document.getElementById("run");
+    const btnRunAgain = document.getElementById("runAgain");
+    const btnGenerate = document.getElementById("generateMap");
     const WIDTH = 20;
     const HEIGHT = 20;
-    class State{
+    const TIME_DELAY = 20;
 
+    Array.prototype.shuffle = function () {
+        let input = this;
+
+        for (let i = input.length - 1; i >= 0; i--) {
+
+            let randomIndex = Math.floor(Math.random() * (i + 1));
+            let itemAtIndex = input[randomIndex];
+
+            input[randomIndex] = input[i];
+            input[i] = itemAtIndex;
+        }
+        return input;
+    }
+    const viewMatrix = document.getElementById("viewMatrix");
+    const ctxViewMaxtrix = viewMatrix.getContext('2d');
+    class State{
         currentRow;
         currentCol;
         constructor(_rows, _columns) {
@@ -34,24 +55,25 @@ window.onload = function () {
     class Graph{
         rows = 0; // Number of rows
         columns = 0; // Number of columns
-        matrix = []
+        matrix = [];
         constructor(_rows, _columns, _matrix) {
             this.rows = _rows;
             this.columns = _columns;
-
             this.matrix = _matrix;
+            for(let i = 0; i<_rows; ++i){
+                for(let j = 0; j< _columns; ++j){
+                    try {
+                        this.matrix[i][j] = _matrix[i][j];
+                    } catch (e) {
+                        console.log(`i: ${i}, j: ${j}, matrix: ${this.matrix}`);
+                    }
+                }
+            }
+
         }
 
     }
-    class Bfs{
-        graph = null;
-        start = null;
-        goal = null;
-        constructor(_graph, _start, _goal) {
-            this.graph = _graph;
-            this.start = new State(_start.currentRow, _start.currentCol);
-            this.goal = new State(_goal.currentRow, _goal.currentCol);
-        }
+    class Action {
         upOperator(currentState){
             const tempState = new State(currentState.currentRow - 1, currentState.currentCol);
             if(currentState.currentRow > 0 && !Number(this.graph.matrix[tempState.currentRow][tempState.currentCol])){
@@ -92,6 +114,17 @@ window.onload = function () {
                 }
             }
         }
+    }
+    class Algorithm extends Action{
+        graph = null;
+        start = null;
+        goal = null;
+        constructor(_graph, _start, _goal) {
+            super();
+            this.graph = _graph;
+            this.start = new State(_start.currentRow, _start.currentCol);
+            this.goal = new State(_goal.currentRow, _goal.currentCol);
+        }
         heuristic(currentState){
             return Math.abs(this.goal.currentRow - currentState.currentRow) + Math.abs(this.goal.currentCol - currentState.currentCol);
         }
@@ -117,6 +150,8 @@ window.onload = function () {
             }
             return findNode;
         }
+    }
+    class Bfs extends Algorithm{
         solve(){
             const root = new Node(this.start, null, 0, 0);
 
@@ -135,28 +170,30 @@ window.onload = function () {
                     return parent;
                 }
                 closeList.push(parent);
+                if(!this.compareState(this.start, parent.state)){
+
+                    drawVisited(parent, '#F3A712');
+                }
+
                 for(let act = 1; act<=4; ++act){
                     const child = this.callOperator(parent.state, act);
                     if(child){
                         const existInOpen = this.isExist(openList, child);
                         const existInClose = this.isExist(closeList, child);
                         if(!existInOpen && !existInClose){
-                            if(!this.isGoal(child)){
-                                drawVisited(child, '#7BE0AD');
-                            }
                             const f = this.heuristic(child);
                             const childNode = new Node(child, parent, f, act);
                             openList.push(childNode);
+
+                            if(!this.isGoal(child)){
+                                drawVisited(childNode, '#F4E285');
+                            }
                         }
                     }
                 }
             }
         }
     }
-
-
-    const viewMatrix = document.getElementById("viewMatrix");
-    const ctxViewMaxtrix = viewMatrix.getContext('2d');
 
     class Game{
         graph = null;
@@ -171,60 +208,74 @@ window.onload = function () {
                 for(let j = 0; j< this.graph.columns; j++){
                     ctxViewMaxtrix.fillStyle = '#CED3DC';
                     if(Number(this.graph.matrix[i][j]) === 1){
-                        ctxViewMaxtrix.fillStyle = '#364652';
+                        ctxViewMaxtrix.fillStyle = '#000';
                     }
                     ctxViewMaxtrix.fillRect(j*this.w + j, i*this.h + i, this.w, this.h);
                 }
             }
             // Draw start state
-            ctxViewMaxtrix.fillStyle = '#A20021';
-            ctxViewMaxtrix.fillRect(start.currentCol*this.w + start.currentCol, start.currentRow*this.h + start.currentRow, this.w, this.h);
-            // Draw goal state
-            ctxViewMaxtrix.fillStyle = '#0C8346';
-            ctxViewMaxtrix.fillRect(goal.currentCol*this.w + goal.currentCol, goal.currentRow*this.h + goal.currentRow, this.w, this.h);
+            drawVisited(new Node(start, null, "", ""), '#A20021');
+            drawVisited(new Node(goal, null, 0, 0), '#7FB069');
         }
+    }
+
+
+
+    function drawVisited(node, color) {
+        const state = node.state;
+
+        const w = WIDTH; // Width of cell
+        const h = HEIGHT; // Height of cell
+        ctxViewMaxtrix.font = "10px Arial";
+
+        ctxViewMaxtrix.fillStyle = color;
+        ctxViewMaxtrix.fillRect(state.currentCol*w + state.currentCol, state.currentRow*h + state.currentRow, w, h);
+
+        ctxViewMaxtrix.fillStyle = "black";
+        ctxViewMaxtrix.fillText( node.f, (state.currentCol*w + state.currentCol) + w/2 - 5, (state.currentRow*h + state.currentRow) + h/2 + 5);
+
+
     }
 
     function pathOfMaze(node) {
         let newNode = node;
         let list = [];
+        if(!node) return null;
         while (newNode.parent){
-            list.unshift(newNode.state);
+            list.unshift(newNode);
 
             newNode = newNode.parent;
         }
         return list;
 
     }
-    function drawVisited(state, color) {
 
-
-        const w = WIDTH; // Width of cell
-        const h = HEIGHT; // Height of cell
-        ctxViewMaxtrix.fillStyle = color;
-        // ctx.font = "10px Arial";
-        // ctx.fillText(, state.currentCol*w + state.currentCol, state.currentRow*h + state.currentRow);
-
-        ctxViewMaxtrix.fillRect(state.currentCol*w + state.currentCol, state.currentRow*h + state.currentRow, w, h);
-
-
-    }
     function drawCurrentPath(list) {
-
+        if(!list) return;
         const w = WIDTH; // Width of cell
         const h = HEIGHT; // Height of cell
-        ctxViewMaxtrix.fillStyle = '#E5C2C0';
         let i = 0;
+        btnStart.disabled = true;
+        btnRunAgain.disabled = true;
+        btnRun.disabled = true;
+        btnGenerate.disabled = true;
+        selectMap.disabled = true;
         const interval = setInterval( () => {
 
             if(i === list.length - 2 ){
                 clear();
+
+                btnStart.disabled = false;
+                btnRunAgain.disabled = false;
+                btnRun.disabled = false;
+                btnGenerate.disabled = false;
+                selectMap.disabled = false;
             }
-            const state = list[i];
-            drawVisited(state, '#E5C2C0');
+            const node = list[i];
+            drawVisited(node, '#7CC6FE');
             i++;
-        }, 50);
-        clear = () => {
+        }, TIME_DELAY);
+        const clear = () => {
             clearInterval(interval);
         }
 
@@ -262,5 +313,155 @@ window.onload = function () {
         }
         rawFile.send(null);
     }
-    readTextFile('Map4.txt');
+    selectMap.addEventListener('change', function (event) {
+        console.log(event.target.value);
+        const mapName = event.target.value;
+        ctxViewMaxtrix.clearRect(0, 0, 2000, 2000);
+        readTextFile(mapName);
+    });
+    class GenerationMaze {
+
+        _rows = 40;
+        _columns = 40;
+        constructor(rows, columns, graph) {
+            this._rows = rows;
+            this._columns = columns;
+            if(!graph){
+               this.graph = Array(this._rows).fill().map(() => Array(this._columns).fill(1))
+            } else {
+                this.graph = graph;
+            }
+            // this.generate = Object.bind(this);
+        }
+
+        upOperator(currentState){
+            if(currentState.currentRow > 0){
+
+                return new State(currentState.currentRow - 1, currentState.currentCol);
+            }
+            return null;
+        }
+        downOperator(currentState){
+            if(currentState.currentRow < this._rows - 1){
+
+                return new State(currentState.currentRow + 1, currentState.currentCol );
+            }
+            return null;
+        }
+        leftOperator(currentState){
+            if(currentState.currentCol > 0){
+
+                return new State(currentState.currentRow, currentState.currentCol - 1);
+            }
+            return null;
+        }
+        rightOperator(currentState){
+            if(currentState.currentCol < this._columns - 1){
+                return new State(currentState.currentRow, currentState.currentCol + 1);
+            }
+            return null;
+        }
+        callOperator(state, action){
+            switch (action) {
+                case 1: return this.upOperator(state);
+                case 2: return this.downOperator(state);
+                case 3: return this.leftOperator(state);
+                case 4: return this.rightOperator(state);
+                default: {
+                    console.log("No operator!");
+                    return null;
+                }
+            }
+        }
+        existed(list, state) {
+            return list.find(item => item.currentRow === state.currentRow && item.currentCol === state.currentCol);
+        }
+        generate(){
+            const operator = [1,2,3,4];
+            const list = [];
+            list.push(new State(Number.parseInt((Math.random() * this._rows)),
+                Number.parseInt(Math.random() *this._columns)));
+            while (list.length){
+                const state = list.pop();
+                for(let i = 0; i<4; i++){
+                    operator.shuffle();
+
+                    const childState = this.callOperator(state, operator[i]);
+                    if(childState){
+                        list.push(childState);
+                        i = 5;
+                        this.graph[state.currentRow][state.currentCol] = 0;
+                        this.graph[childState.currentRow][childState.currentCol] = 0;
+                    }
+                }
+            }
+            return [...this.graph];
+        }
+
+    }
+    function randomState(matrix) {
+        let randomState = null;
+        const len = matrix.length;
+        do {
+            let x = Number.parseInt(Math.random() * len);
+            let y = Number.parseInt(Math.random() * len);
+            if(!matrix[x][y]){
+                randomState = new State(x, y);
+            }
+        } while (!randomState);
+
+        return randomState;
+    }
+
+
+
+    const inputRow = document.getElementById("inputRow");
+    const inputColumn = document.getElementById("inputColumn");
+
+    let rows = Number(inputRow.value);
+    let columns = Number(inputColumn.value);
+    let matrix = null;
+    let graph = null;
+    let game = null;
+    let start, end;
+    function startGame() {
+        generateMap();
+        run();
+
+    }
+    inputRow.addEventListener('change', function () {
+        rows = Number(inputRow.value);
+    })
+    inputColumn.addEventListener('change', function () {
+        columns = Number(inputColumn.value);
+    })
+    function generateMap() {
+        ctxViewMaxtrix.clearRect(0, 0, 2000, 2000);
+        matrix = (new GenerationMaze(rows, columns)).generate();
+        graph = new Graph(rows, columns, matrix);
+        game = new Game(graph);
+        start = randomState(matrix);
+        end = randomState(matrix);
+        game.drawGraph(start, end);
+
+    }
+    function runAgain() {
+
+        start = randomState(matrix);
+        end = randomState(matrix);
+        game.drawGraph(start, end);
+        run();
+    }
+    function run(){
+        if(!matrix)
+            generateMap();
+        const bfs = new Bfs(graph,start, end);
+        const nodeGoal = bfs.solve();
+        const list = pathOfMaze(nodeGoal);
+        drawCurrentPath(list);
+    }
+    btnStart.addEventListener('click', startGame);
+    btnRun.addEventListener('click', run);
+    btnRunAgain.addEventListener('click', runAgain);
+    btnGenerate.addEventListener('click', generateMap);
 }
