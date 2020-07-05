@@ -6,9 +6,12 @@ window.onload = function () {
     const btnRun = document.getElementById("run");
     const btnRunAgain = document.getElementById("runAgain");
     const btnGenerate = document.getElementById("generateMap");
+    const txtTimer = document.getElementById("timer");
+    const txtCoor = document.getElementById("coor");
     const WIDTH = 20;
     const HEIGHT = 20;
     const TIME_DELAY = 20;
+    const actionsName = ["", "Up", "Down", "Left", "Right"];
 
     Array.prototype.shuffle = function () {
         let input = this;
@@ -119,6 +122,8 @@ window.onload = function () {
         graph = null;
         start = null;
         goal = null;
+        startTime = null;
+        endTime = null;
         constructor(_graph, _start, _goal) {
             super();
             this.graph = _graph;
@@ -151,15 +156,21 @@ window.onload = function () {
             return findNode;
         }
     }
+
     class Bfs extends Algorithm{
+        /**
+         * Execute `BFS` algorithm and return how long it takes.
+         * @returns {[Node, Array, Array]} returns an array of `Node`, `Open List` and `Close List`
+         */
         solve(){
+            this.startTime = Date.now();
             const root = new Node(this.start, null, 0, 0);
 
 
             let openList = [];
             openList.push(root);
 
-            const closeList = [];
+            let closeList = [];
 
             while (openList.length){
                 const parent = this.minF(openList);
@@ -167,7 +178,8 @@ window.onload = function () {
                 if(this.isGoal(parent.state)){
                     openListText.innerText = openList.length;
                     closeListText.innerText = closeList.length;
-                    return parent;
+                    this.endTime = Date.now();
+                    return [parent, openList, closeList];
                 }
                 closeList.push(parent);
                 if(!this.compareState(this.start, parent.state)){
@@ -443,7 +455,6 @@ window.onload = function () {
         start = randomState(matrix);
         end = randomState(matrix);
         game.drawGraph(start, end);
-
     }
     function runAgain() {
 
@@ -452,16 +463,73 @@ window.onload = function () {
         game.drawGraph(start, end);
         run();
     }
+
+    let infoList = null;
     function run(){
         if(!matrix)
             generateMap();
         const bfs = new Bfs(graph,start, end);
-        const nodeGoal = bfs.solve();
+        const [nodeGoal, openList, closeList] = bfs.solve();
         const list = pathOfMaze(nodeGoal);
+
         drawCurrentPath(list);
+
+        infoList = [...openList, ...closeList];
+
+        infoList = infoList.reduce(function (pre, cur, id) {
+            let y = cur.state.currentRow;
+            let x = cur.state.currentCol;
+            pre[x][y] = {f: cur.f, action: cur.action};
+            return pre;
+        }, Array(rows).fill().map(() => Array(columns).fill(0)));
+        /** output timer */
+        txtTimer.innerHTML = `${bfs.endTime - bfs.startTime}`;
     }
+
     btnStart.addEventListener('click', startGame);
     btnRun.addEventListener('click', run);
     btnRunAgain.addEventListener('click', runAgain);
     btnGenerate.addEventListener('click', generateMap);
+
+    viewMatrix.addEventListener('click', function (e) {
+        // get coordinates by pixels
+        let x = e.offsetX;
+        let y = e.offsetY;
+
+        // reduce columns strike devivation
+        if (x > 20) {
+            // 1px per square (Square 20x20)
+            x = x - x/20;
+        }
+        // reduce rows strike devivation
+        if (y > 20) {
+            // 1px per square (Square 20x20)
+            y = y - y/20;
+        }
+
+        // matrix offset
+        var offsetX = Math.floor(x / 20);
+        var offsetY = Math.floor(y / 20);
+
+        // define popup box location
+        txtCoor.style.top = `${y}px`;
+        txtCoor.style.left = `${x}px`;
+
+        // disable popup box if matrix undefined
+        if (!matrix)
+            txtCoor.style.display = 'none';
+        else txtCoor.style.display = 'block';
+
+        document.addEventListener('mousemove', function (e){
+            txtCoor.style.display = 'none';
+        });
+
+        // raw message
+        let msg = `Coordinate: (${offsetX}, ${offsetY})\nf: ${infoList[offsetX][offsetY].f || -1}`;
+        msg = msg.concat(`\nAction: ${actionsName[infoList[offsetX][offsetY].action] || "No action"}`);
+
+        // output message
+        msg = msg.replace(/\n/g, "<br>");
+        txtCoor.innerHTML = msg;
+    });
 }
