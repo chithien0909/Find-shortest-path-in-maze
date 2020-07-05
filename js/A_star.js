@@ -1,13 +1,13 @@
 
 
-class Bfs extends Algorithm{
+class A_star extends Algorithm{
     /**
-     * Execute `BFS` algorithm and return how long it takes.
+     * Execute `A Star` algorithm and return how long it takes.
      * @returns {[Node, Array, Array]} returns an array of `Node`, `Open List` and `Close List`
      */
     solve(){
         this.startTime = Date.now();
-        const root = new Node(this.start, null, 0, 0);
+        const root = new Node(this.start, null, 0, 0, 0, 0);
         let openList = [];
         openList.push(root);
 
@@ -19,7 +19,6 @@ class Bfs extends Algorithm{
             if(this.isGoal(parent.state)){
                 openListText.innerText = openList.length;
                 closeListText.innerText = closeList.length;
-
                 this.endTime = Date.now();
                 return [parent, openList, closeList];
             }
@@ -34,8 +33,11 @@ class Bfs extends Algorithm{
                 if(child){
                     const existInOpen = this.isExist(openList, child);
                     const existInClose = this.isExist(closeList, child);
-                    const f = this.heuristic(child); // f = h
-                    const childNode = new Node(child, parent, f, 0, f, act) // f = h
+                    const h = this.heuristic(child); // f = h
+                    const g = parent.g + 1;
+                    const f = g + h;
+                    const childNode = new Node(child, parent, f, g, h, act);
+
                     if(!existInOpen && !existInClose){
                         openList.push(childNode);
                         if(!this.isGoal(child)){
@@ -43,7 +45,7 @@ class Bfs extends Algorithm{
                         }
                     }
                     if(existInOpen && !existInClose){
-                        if(existInOpen.f > childNode.f){
+                        if(existInOpen.g > childNode.g){
                             // Remove exist node in open list
                             openList = openList.filter(node => !this.compareState(node.state, existInOpen.state));
                             // Push childNode into OpenList
@@ -51,17 +53,15 @@ class Bfs extends Algorithm{
                         }
                     }
                     if(existInClose && !existInOpen){
-                        if(existInClose.f > childNode.f){
+                        if(existInClose.g > childNode.g){
                             // Remove exist node in close list
                             closeList = closeList.filter(node => !this.compareState(node.state, existInClose.state));
                             // Push childNode into openList
                             openList.push(childNode);
                         }
                     }
-
                 }
             }
         }
-
     }
 }

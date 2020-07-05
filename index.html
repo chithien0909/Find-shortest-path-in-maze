@@ -40,6 +40,12 @@
         <button id="run">Run</button>
         <button id="generateMap">Generate map</button>
         <button id="runAgain">Run again</button>
+        <br>
+        <br>
+        <select id="select_algorithm">
+            <option value="Bfs">BFS (Best first search)</option>
+            <option value="A_star">A star</option>
+        </select>
         <select id="select_map">
             <option value="">Choose map</option>
             <option value="Map1.txt">Map 1</option>
@@ -58,6 +64,7 @@
         <div class="result">
             Open list: <span id="openList">0</span> nodes
             <br>Close list: <span id="closeList">0</span> nodes
+            <br>Path length: <span id="pathLength">0</span> cells
         </div>
         <div>
             Solve time:
@@ -81,9 +88,10 @@
 <script type="text/javascript" src="js/Action.js"></script>
 <script type="text/javascript" src="js/Algorithm.js"></script>
 <script type="text/javascript" src="js/Bfs.js"></script>
+<script type="text/javascript" src="js/A_star.js"></script>
 <script type="text/javascript" src="js/Game.js"></script>
 <script type="text/javascript" src="js/GenerationMaze.js"></script>
-<script type="text/javascript" src="js/app.js?v=4">
+<script type="text/javascript" src="js/app.js?v=5">
 
 </script>
 </body>

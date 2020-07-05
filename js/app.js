@@ -14,8 +14,6 @@ window.onload = function () {
         return randomState;
     }
 
-
-
     const inputRow = document.getElementById("inputRow");
     const inputColumn = document.getElementById("inputColumn");
 
@@ -25,6 +23,8 @@ window.onload = function () {
     let graph = null;
     let game = null;
     let start, end;
+    let AlgorithmFunc = Bfs;
+
     function startGame() {
         generateMap();
         run();
@@ -58,8 +58,11 @@ window.onload = function () {
     function run(){
         if(!matrix)
             generateMap();
-        const bfs = new Bfs(graph,start, end);
-        const [nodeGoal, openList, closeList] = bfs.solve();
+
+        game.drawGraph(start, end);
+        const algorithm = new AlgorithmFunc(graph,start, end);
+
+        const [nodeGoal, openList, closeList] = algorithm.solve();
         const list = pathOfMaze(nodeGoal);
 
         drawCurrentPath(list);
@@ -73,7 +76,7 @@ window.onload = function () {
             return pre;
         }, Array(rows).fill().map(() => Array(columns).fill(0)));
         /** output timer */
-        txtTimer.innerHTML = `${bfs.endTime - bfs.startTime}`;
+        txtTimer.innerHTML = `${algorithm.endTime - algorithm.startTime}`;
     }
 
 
@@ -119,7 +122,21 @@ window.onload = function () {
         ctxViewMaxtrix.clearRect(0, 0, 4000, 4000);
         readTextFile(mapName);
     });
-
+    selectAlgorithm.addEventListener('change', function (event) {
+        const alogrithmName = event.target.value;
+        switch (alogrithmName) {
+            case 'Bfs':
+                AlgorithmFunc = Bfs;
+                run();
+                break;
+            case 'A_star':
+                AlgorithmFunc = A_star;
+                run();
+                break;
+            default:
+                AlgorithmFunc = Bfs;
+        }
+    });
 
     btnStart.addEventListener('click', startGame);
     btnRun.addEventListener('click', run);

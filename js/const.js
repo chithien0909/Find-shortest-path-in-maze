@@ -2,12 +2,14 @@
 const openListText = document.getElementById("openList");
 const closeListText = document.getElementById("closeList");
 const selectMap = document.getElementById("select_map");
+const selectAlgorithm = document.getElementById("select_algorithm");
 const btnStart = document.getElementById("startGame");
 const btnRun = document.getElementById("run");
 const btnRunAgain = document.getElementById("runAgain");
 const btnGenerate = document.getElementById("generateMap");
 const txtTimer = document.getElementById("timer");
 const txtCoor = document.getElementById("coor");
+const txtPathLength = document.getElementById("pathLength");
 const WIDTH = 20;
 const HEIGHT = 20;
 const TIME_DELAY = 20;
@@ -67,6 +69,7 @@ function drawCurrentPath(list) {
     btnRun.disabled = true;
     btnGenerate.disabled = true;
     selectMap.disabled = true;
+    txtPathLength.innerHTML = list.length - 1;
     const interval = setInterval( () => {
 
         if(i === list.length - 2 ){
