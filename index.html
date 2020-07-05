@@ -6,33 +6,72 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Maze</title>
+    <style>
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-start {
+            justify-content: start;
+        }
+
+        .mr-1 {
+            margin-right: 1em!important;
+        }
+
+        #coor {
+            display: none;
+            background: #C8C8C8;
+            margin-left: 28px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1000;
+            width:200px;
+            height:100px;
+        }
+    </style>
 </head>
 <body>
-<button id="startGame">Start game</button>
-<button id="run">Run</button>
 
-<button id="generateMap">Generate map</button>
-<button id="runAgain">Run again</button>
-<select id="select_map">
-    <option value="">Choose map</option>
-    <option value="Map1.txt">Map 1</option>
-    <option value="Map2.txt">Map 2</option>
-    <option value="Map3.txt">Map 3</option>
-    <option value="Map4.txt">Map 4</option>
-    <option value="Map5.txt">Map 5</option>
-</select>
-<br>
-<br>
-Rows: <input id="inputRow" type="number" value="70">
-<br>
-Columns: <input id="inputColumn" type="number" value="70">
-<br />
-<br />
-<div class="result">
-    Open list: <h4 id="openList">0</h4>
-    Close list: <h4 id="closeList">0</h4>
+<div class="d-flex justify-content-start">
+    <div class="mr-1">
+
+        <button id="startGame">Start game</button>
+        <button id="run">Run</button>
+        <button id="generateMap">Generate map</button>
+        <button id="runAgain">Run again</button>
+        <select id="select_map">
+            <option value="">Choose map</option>
+            <option value="Map1.txt">Map 1</option>
+            <option value="Map2.txt">Map 2</option>
+            <option value="Map3.txt">Map 3</option>
+            <option value="Map4.txt">Map 4</option>
+            <option value="Map5.txt">Map 5</option>
+        </select>
+        <br>
+        <br>
+        Rows: <input id="inputRow" type="number" value="70">
+        <br>
+        Columns: <input id="inputColumn" type="number" value="70">
+        <br />
+        <br />
+        <div class="result">
+            Open list: <span id="openList">0</span> nodes
+            <br>Close list: <span id="closeList">0</span> nodes
+        </div>
+        <div>
+            Solve time:
+            <span id="timer">0</span> milliseconds
+        </div>
+    </div>
 </div>
-<canvas width="4000" height="4000" id="viewMatrix"></canvas>
+<div style="position:relative; width:4000px; height:4000px;">
+    <div id="coor"></div>
+
+    <canvas width="4000" height="4000" id="viewMatrix">
+
+    </canvas>
+</div>
 
 <script type="text/javascript" src="js/app.js?v=3">
 
