@@ -35,6 +35,7 @@ class GenerationMaze {
         }
         return null;
     }
+
     rightOperator(currentState){
         if(currentState.currentCol < this._columns - 1){
             return new State(currentState.currentRow, currentState.currentCol + 1);
