@@ -24,6 +24,7 @@ window.onload = function () {
     let game = null;
     let start, end;
     let AlgorithmFunc = Bfs;
+    let HeuristicName = 'h_1';
 
     function startGame() {
         generateMap();
@@ -60,7 +61,7 @@ window.onload = function () {
             generateMap();
 
         game.drawGraph(start, end);
-        const algorithm = new AlgorithmFunc(graph,start, end);
+        const algorithm = new AlgorithmFunc(graph,start, end, HeuristicName);
 
         const [nodeGoal, openList, closeList] = algorithm.solve();
         const list = pathOfMaze(nodeGoal);
@@ -72,7 +73,7 @@ window.onload = function () {
         infoList = infoList.reduce(function (pre, cur, id) {
             let y = cur.state.currentRow;
             let x = cur.state.currentCol;
-            pre[x][y] = {f: cur.f, action: cur.action};
+            pre[x][y] = {f: cur.f, g: cur.g, h: cur.h, action: cur.action};
             return pre;
         }, Array(rows).fill().map(() => Array(columns).fill(0)));
         /** output timer */
@@ -137,6 +138,10 @@ window.onload = function () {
                 AlgorithmFunc = Bfs;
         }
     });
+    selectHeuristic.addEventListener('change', function (event) {
+        HeuristicName = event.target.value;
+        run();
+    });
 
     btnStart.addEventListener('click', startGame);
     btnRun.addEventListener('click', run);
@@ -149,19 +154,19 @@ window.onload = function () {
         let y = e.offsetY;
 
         // reduce columns strike devivation
-        if (x > 20) {
-            // 1px per square (Square 20x20)
-            x = x - x/20;
+        if (x > WIDTH) {
+            // 1px per square (Square WIDTHxHEIGHT)
+            x = x - x/WIDTH;
         }
         // reduce rows strike devivation
-        if (y > 20) {
-            // 1px per square (Square 20x20)
-            y = y - y/20;
+        if (y > HEIGHT) {
+            // 1px per square (Square WIDTHxWIDTH)
+            y = y - y/HEIGHT;
         }
 
         // matrix offset
-        var offsetX = Math.floor(x / 20);
-        var offsetY = Math.floor(y / 20);
+        var offsetX = Math.floor(x / WIDTH);
+        var offsetY = Math.floor(y / HEIGHT);
 
         // define popup box location
         txtCoor.style.top = `${y}px`;
@@ -177,7 +182,11 @@ window.onload = function () {
         });
 
         // raw message
-        let msg = `Coordinate: (${offsetX}, ${offsetY})\nf: ${infoList[offsetX][offsetY].f || -1}`;
+        let msg = `Coordinate: (${offsetY}, ${offsetX})\nf: ${infoList[offsetX][offsetY].f || -1}`;
+        if(AlgorithmFunc !== Bfs){
+            msg = msg.concat(`\ng: ${infoList[offsetX][offsetY].g || -1}`);
+            msg = msg.concat(`\nh: ${infoList[offsetX][offsetY].h || -1}`);
+        }
         msg = msg.concat(`\nAction: ${actionsName[infoList[offsetX][offsetY].action] || "No action"}`);
 
         // output message

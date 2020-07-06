@@ -5,19 +5,27 @@ class Algorithm extends Action{
     goal = null;
     startTime = null;
     endTime = null;
-    constructor(_graph, _start, _goal) {
+    heuristicName = null;
+    constructor(_graph, _start, _goal, _heuristicName) {
         super();
         this.graph = _graph;
         this.start = new State(_start.currentRow, _start.currentCol);
         this.goal = new State(_goal.currentRow, _goal.currentCol);
+        this.heuristicName = _heuristicName;
     }
     heuristic(currentState){
+        // Manhattan
+        if(this.heuristicName === 'h_1')
+            return this.heuristic_1(currentState);
+        return this.heuristic_2(currentState);
+    }
+    heuristic_1(currentState){
         // Manhattan
         return Math.abs(this.goal.currentRow - currentState.currentRow) + Math.abs(this.goal.currentCol - currentState.currentCol);
     }
     heuristic_2(currentState){
         // Euclidean
-        return Math.sqrt(Math.pow(Math.abs(this.goal.currentRow - currentState.currentRow), 2) + Math.pow(Math.abs(this.goal.currentCol - currentState.currentCol), 2)).toFixed(1);
+        return Math.sqrt(Math.pow(Math.abs(this.goal.currentRow - currentState.currentRow), 2) + Math.pow(Math.abs(this.goal.currentCol - currentState.currentCol), 2));
     }
 
     compareState(state1, state2){

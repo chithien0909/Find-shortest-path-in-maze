@@ -46,6 +46,10 @@
             <option value="Bfs">BFS (Best first search)</option>
             <option value="A_star">A star</option>
         </select>
+        <select id="select_heuristic">
+            <option value="h_1">Heuristic Manhattan</option>
+            <option value="h_2">Heuristic Euclidean</option>
+        </select>
         <select id="select_map">
             <option value="">Choose maze</option>
             <option value="Map1.txt">Maze 1</option>
@@ -56,9 +60,9 @@
         </select>
         <br>
         <br>
-        Rows: <input id="inputRow" type="number" value="70">
+        Rows: <input id="inputRow" type="number" value="40">
         <br>
-        Columns: <input id="inputColumn" type="number" value="70">
+        Columns: <input id="inputColumn" type="number" value="40">
         <br />
         <br />
         <div class="result">
@@ -91,7 +95,7 @@
 <script type="text/javascript" src="js/A_star.js"></script>
 <script type="text/javascript" src="js/Game.js"></script>
 <script type="text/javascript" src="js/GenerationMaze.js"></script>
-<script type="text/javascript" src="js/app.js?v=5">
+<script type="text/javascript" src="js/app.js?v=1">
 
 </script>
 </body>

@@ -3,6 +3,7 @@ const openListText = document.getElementById("openList");
 const closeListText = document.getElementById("closeList");
 const selectMap = document.getElementById("select_map");
 const selectAlgorithm = document.getElementById("select_algorithm");
+const selectHeuristic = document.getElementById("select_heuristic");
 const btnStart = document.getElementById("startGame");
 const btnRun = document.getElementById("run");
 const btnRunAgain = document.getElementById("runAgain");
@@ -10,8 +11,8 @@ const btnGenerate = document.getElementById("generateMap");
 const txtTimer = document.getElementById("timer");
 const txtCoor = document.getElementById("coor");
 const txtPathLength = document.getElementById("pathLength");
-const WIDTH = 20;
-const HEIGHT = 20;
+const WIDTH = 25;
+const HEIGHT = 25;
 const TIME_DELAY = 20;
 const actionsName = ["", "Up", "Down", "Left", "Right"];
 
@@ -51,7 +52,7 @@ function drawVisited(node, color) {
     } else {
         scale = 6;
     }
-    ctxViewMaxtrix.fillText( node.f, (state.currentCol*w + state.currentCol) + w/2 - scale, (state.currentRow*h + state.currentRow) + h/2 + 4);
+    ctxViewMaxtrix.fillText( Number(node.f || 0).toFixed(1), (state.currentCol*w + state.currentCol) + w/2 - scale, (state.currentRow*h + state.currentRow) + h/2 + 4);
 
 
 }
@@ -78,10 +79,9 @@ function drawCurrentPath(list) {
     btnGenerate.disabled = true;
     selectMap.disabled = true;
     txtPathLength.innerHTML = list.length - 1;
+    // let oldNode = list[0]
     const interval = setInterval( () => {
-
         if(i === list.length - 2 ){
-
             btnStart.disabled = false;
             btnRunAgain.disabled = false;
             btnRun.disabled = false;
@@ -91,6 +91,13 @@ function drawCurrentPath(list) {
         }
         const node = list[i];
         drawVisited(node, '#7CC6FE');
+        // console.log(oldNode, node);
+        // ctxViewMaxtrix.strokeStyle = "#357DED";
+        //
+        // ctxViewMaxtrix.moveTo((node.state.currentCol )* WIDTH +  node.state.currentCol + WIDTH/2, (node.state.currentRow)*HEIGHT + node.state.currentRow + HEIGHT/2);
+        // ctxViewMaxtrix.lineTo((oldNode.state.currentCol)* WIDTH + oldNode.state.currentCol + WIDTH/2, (oldNode.state.currentRow)* HEIGHT + oldNode.state.currentRow + HEIGHT/2);
+        // ctxViewMaxtrix.stroke();
+        // oldNode = node;
         i++;
     }, TIME_DELAY);
     const clear = () => {
