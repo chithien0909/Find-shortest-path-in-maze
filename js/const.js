@@ -37,13 +37,21 @@ function drawVisited(node, color) {
 
     const w = WIDTH; // Width of cell
     const h = HEIGHT; // Height of cell
-    ctxViewMaxtrix.font = "10px Arial";
+    ctxViewMaxtrix.font = "8px Arial";
 
     ctxViewMaxtrix.fillStyle = color;
     ctxViewMaxtrix.fillRect(state.currentCol*w + state.currentCol, state.currentRow*h + state.currentRow, w, h);
 
     ctxViewMaxtrix.fillStyle = "black";
-    ctxViewMaxtrix.fillText( node.f, (state.currentCol*w + state.currentCol) + w/2 - 5, (state.currentRow*h + state.currentRow) + h/2 + 5);
+    let scale = 5;
+    if(node.f < 10){
+        scale = 3;
+    } else if(node < 100){
+        scale = 3.5;
+    } else {
+        scale = 6;
+    }
+    ctxViewMaxtrix.fillText( node.f, (state.currentCol*w + state.currentCol) + w/2 - scale, (state.currentRow*h + state.currentRow) + h/2 + 4);
 
 
 }
